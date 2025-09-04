@@ -7,15 +7,33 @@ import { EmailList } from "@/components/email-list";
 import { EmailDetail } from "@/components/email-detail";
 import { LoadingOverlay } from "@/components/loading-overlay";
 import { useSyncEmails, useEmail } from "@/hooks/use-emails";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Email } from "@/types/email";
 
 export default function Dashboard() {
   const [selectedEmailId, setSelectedEmailId] = useState<string>();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const syncEmails = useSyncEmails();
   const { data: selectedEmail, isLoading: emailLoading } = useEmail(selectedEmailId || "");
+  
+  const processUrgent = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/process-urgent");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/emails"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analytics"] });
+      toast({
+        title: "Urgent Emails Processed",
+        description: `Generated AI responses for ${data.processedCount} urgent emails.`,
+      });
+    }
+  });
 
   const handleEmailSelect = (email: Email) => {
     setSelectedEmailId(email.id);
@@ -32,6 +50,18 @@ export default function Dashboard() {
       toast({
         title: "Sync Failed",
         description: "Failed to sync emails. Please check your email configuration.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleProcessUrgent = async () => {
+    try {
+      await processUrgent.mutateAsync();
+    } catch (error) {
+      toast({
+        title: "Processing Failed",
+        description: "Failed to process urgent emails. Please try again.",
         variant: "destructive",
       });
     }
@@ -59,6 +89,14 @@ export default function Dashboard() {
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${syncEmails.isPending ? 'animate-spin' : ''}`} />
                 {syncEmails.isPending ? "Syncing..." : "Sync Emails"}
+              </Button>
+              <Button 
+                variant="destructive"
+                onClick={handleProcessUrgent}
+                disabled={processUrgent.isPending}
+                data-testid="button-process-urgent"
+              >
+                🚨 {processUrgent.isPending ? "Processing..." : "Process Urgent"}
               </Button>
               <Button variant="ghost" size="icon" data-testid="button-notifications">
                 <Bell className="h-4 w-4" />

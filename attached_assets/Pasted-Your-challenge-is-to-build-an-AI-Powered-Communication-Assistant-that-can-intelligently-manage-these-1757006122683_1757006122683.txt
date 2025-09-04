@@ -1,0 +1,68 @@
+Your challenge is to build an AI-Powered Communication Assistant that can intelligently manage these emails end-to-end. The assistant should analyze incoming emails, prioritize them based on urgency, generate appropriate responses, and display the results on a user-friendly dashboard.
+The goal is to improve efficiency, response quality, and customer satisfaction while reducing manual effort.
+
+Core Requirements:
+
+Email Retrieval & Filtering
+Fetch all incoming emails from the user’s email account (IMAP/Gmail/Outlook APIs, etc.).
+Filter emails whose subject lines contain terms like:
+“Support”
+“Query”
+“Request”
+“Help”
+Extract and display relevant details for each filtered email on the dashboard:
+Sender’s email address
+Subject
+Email body
+Date/time received
+Categorization & Prioritization
+Each eligible email should be automatically categorized and ranked:
+Sentiment Analysis: Positive / Negative / Neutral
+Priority: Urgent / Not urgent (e.g., based on keywords like “immediately,” “critical,” “cannot access,” etc.)
+Emails marked as urgent should appear at the top of the list for processing (implement a priority queue for email processing) 
+Context-Aware Auto-Responses
+Use an LLM (Large Language Model) to generate draft replies for each incoming email.
+Responses must:
+Maintain a professional and friendly tone
+Be context-aware (e.g., should use a knowledge base to answer these questions (RAG + Prompt Engineering) + respond contexually - if the customer is frustrated, acknowledge their frustration empathetically)
+Include relevant details (e.g., if the email mentions a product, reference it in the reply)
+Prioritized emails (urgent) should be responded to first.
+Information Extraction
+From each incoming email, extract key information such as:
+Contact details (phone number, alternate email, etc.)
+Customer requirements or requests
+Sentiment indicators (positive/negative words)
+Any metadata that can help support teams act faster
+This information should be displayed clearly on the dashboard, alongside the raw email.
+Dashboard / User Interface
+A simple, clean dashboard where:
+The Filtered support emails are listed along with extracted key details in a structured format
+Anaytics and Stats are present - Categories (sentiment + priority), total emails recieved in last 24 hours, emails resolved, emails pending, interactive graph to display these details
+AI-generated responses are displayed (and can be reviewed/edited before sending)
+Technical Guidelines:
+
+You can use any tech stack (Python/Node.js/Java + React/Next.js for frontend, etc.).
+For (sentiment, summarization, response generation), you may use: OpenAI GPT models, Hugging Face models (BERT, T5, DistilBERT, etc.)
+For email retrieval, use: Gmail, Custom SMTP, Outlook Graph API, or standard IMAP libraries.
+For storage, a simple database (SQLite, MongoDB, or PostgreSQL) is sufficient.
+Evaluation Criteria
+
+Functionality: Accuracy: How well the Email functionalities like reading emails (based on filters) and writing emails/auto-sending of replies (based on priority). Does the assistant correctly filter, categorize, and contextually respond to emails based on priority
+User Experience: Is the dashboard intuitive and contains all the information to give users the right solution. 
+Response Quality: How accurately the AI techniques, Retrieval-Augmented-Generation (RAG), Prompt Engineering and Context embedding, are applied to generate correct response. 
+Timeline:
+
+Hackathon Duration: 4 days
+
+Deliverables:
+
+End-to-end working solution of AI-Powered Communication Assistant
+Demonstration video of all the working features of the platform
+Short self-written documentation (no AI) on architecture + approach used
+Impact:
+
+This assistant has the potential to transform customer support operations by:
+Reducing manual workload
+Ensuring faster, empathetic responses
+Extracting actionable insights from unstructured emails
+Improving customer satisfaction and retention

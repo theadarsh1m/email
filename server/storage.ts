@@ -142,7 +142,7 @@ export class DatabaseStorage implements IStorage {
       .from(analytics)
       .where(and(
         gte(analytics.date, startDate),
-        gte(endDate, analytics.date)
+        gte(analytics.date, endDate)
       ))
       .orderBy(desc(analytics.date));
   }
