@@ -3,6 +3,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { storage } from "../server/storage";
 import { emailService } from "../server/services/emailService";
 import { gmailService } from "../server/services/gmailService";
+import { seedService } from "../server/services/seedService";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
@@ -40,6 +41,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return await handleSync(req, res);
     } else if (method === 'POST' && path === '/process-urgent') {
       return await handleProcessUrgent(req, res);
+    } else if (method === 'POST' && path === '/seed') {
+      return await handleSeed(req, res);
     } else if (method === 'GET' && path === '/analytics/today') {
       return await handleAnalyticsToday(req, res);
     } else if (method === 'GET' && path === '/analytics/range') {
@@ -184,6 +187,21 @@ async function handleProcessUrgent(req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     console.error("Failed to process urgent emails:", error);
     res.status(500).json({ error: "Failed to process urgent emails" });
+  }
+}
+
+async function handleSeed(req: VercelRequest, res: VercelResponse) {
+  try {
+    console.log("Starting CSV data seeding...");
+    await seedService.seedFromCSV();
+    await emailService.updateDailyAnalytics();
+    res.json({ 
+      success: true, 
+      message: "Sample email data loaded and processed with AI analysis" 
+    });
+  } catch (error) {
+    console.error("Seed operation failed:", error);
+    res.status(500).json({ error: "Failed to seed database with sample data" });
   }
 }
 

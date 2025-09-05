@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./services/emailService";
 import { gmailService } from "./services/gmailService";
+import { seedService } from "./services/seedService";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -165,6 +166,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to fetch analytics range:", error);
       res.status(500).json({ error: "Failed to fetch analytics range" });
+    }
+  });
+
+  // Seed data endpoint
+  app.post("/api/seed", async (req, res) => {
+    try {
+      console.log("Starting CSV data seeding...");
+      await seedService.seedFromCSV();
+      await emailService.updateDailyAnalytics();
+      res.json({ 
+        success: true, 
+        message: "Sample email data loaded and processed with AI analysis" 
+      });
+    } catch (error) {
+      console.error("Seed operation failed:", error);
+      res.status(500).json({ error: "Failed to seed database with sample data" });
     }
   });
 

@@ -1,6 +1,7 @@
 import { storage } from "../storage";
 import { geminiService } from "./openaiService";
 import { gmailService } from "./gmailService";
+import { seedService } from "./seedService";
 import type { InsertEmail } from "@shared/schema";
 
 export class EmailService {

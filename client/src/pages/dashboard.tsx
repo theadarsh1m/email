@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Bell } from "lucide-react";
+import { RefreshCw, Bell, Database } from "lucide-react";
 import { Sidebar } from "@/components/sidebar";
 import { AnalyticsSection } from "@/components/analytics-section";
 import { EmailList } from "@/components/email-list";
@@ -31,6 +31,28 @@ export default function Dashboard() {
       toast({
         title: "Urgent Emails Processed",
         description: `Generated AI responses for ${data.processedCount} urgent emails.`,
+      });
+    }
+  });
+
+  const seedData = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/seed");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/emails"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analytics"] });
+      toast({
+        title: "Sample Data Loaded",
+        description: data.message || "Sample email data loaded and processed with AI analysis.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Seeding Failed",
+        description: "Failed to load sample data. Please try again.",
+        variant: "destructive",
       });
     }
   });
@@ -82,6 +104,15 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center space-x-4">
+              <Button 
+                variant="outline"
+                onClick={() => seedData.mutate()}
+                disabled={seedData.isPending}
+                data-testid="button-seed-data"
+              >
+                <Database className={`h-4 w-4 mr-2 ${seedData.isPending ? 'animate-spin' : ''}`} />
+                {seedData.isPending ? "Loading..." : "Load Sample Data"}
+              </Button>
               <Button 
                 onClick={handleSyncEmails}
                 disabled={syncEmails.isPending}
