@@ -96,3 +96,22 @@ export function useTodayAnalytics() {
     queryKey: ["/api/analytics", "today"],
   });
 }
+
+export function useLoadSampleData() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/seed");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/emails"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analytics"] });
+    },
+    onError: (error) => {
+      console.error("Failed to load sample data:", error);
+      throw error;
+    }
+  });
+}

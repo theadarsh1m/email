@@ -109,9 +109,10 @@ export default function Dashboard() {
                 onClick={() => seedData.mutate()}
                 disabled={seedData.isPending}
                 data-testid="button-seed-data"
+                className="transition-all duration-200 hover:bg-primary/5"
               >
                 <Database className={`h-4 w-4 mr-2 ${seedData.isPending ? 'animate-spin' : ''}`} />
-                {seedData.isPending ? "Loading..." : "Load Sample Data"}
+                {seedData.isPending ? "Loading Sample Data..." : "Load Sample Data"}
               </Button>
               <Button 
                 onClick={handleSyncEmails}

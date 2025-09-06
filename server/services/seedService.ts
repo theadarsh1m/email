@@ -1,41 +1,106 @@
 import { storage } from "../storage";
 import { geminiService } from "./openaiService";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 import type { InsertEmail } from "@shared/schema";
+
+// Default sample data if CSV files are not available
+const DEFAULT_SAMPLE_EMAILS = [
+  {
+    sender: "urgent.user@company.com",
+    subject: "CRITICAL: Production system down",
+    body: "Our main production system is completely down. All users are affected and we're losing revenue. This needs immediate attention!",
+    sent_date: "2024-12-06 09:00:00"
+  },
+  {
+    sender: "billing@customer.org",
+    subject: "Billing inquiry - overcharge",
+    body: "I was charged $299 instead of $99 for my monthly subscription. Please review my account and issue a refund for the difference.",
+    sent_date: "2024-12-06 10:15:00"
+  },
+  {
+    sender: "support@helpdesk.com",
+    subject: "Password reset not working",
+    body: "I've tried resetting my password multiple times but I'm not receiving the reset email. Can you help me regain access to my account?",
+    sent_date: "2024-12-06 11:30:00"
+  },
+  {
+    sender: "integration@techfirm.io",
+    subject: "API documentation request",
+    body: "We're planning to integrate with your API but need more detailed documentation on rate limits and webhook configurations.",
+    sent_date: "2024-12-06 12:45:00"
+  },
+  {
+    sender: "feedback@startup.co",
+    subject: "Feature request - bulk export",
+    body: "It would be great if you could add a bulk export feature. We need to export all our data for compliance reporting.",
+    sent_date: "2024-12-06 14:00:00"
+  },
+  {
+    sender: "security@enterprise.net",
+    subject: "Security audit questions",
+    body: "We're conducting a security audit and need information about your data encryption, access controls, and compliance certifications.",
+    sent_date: "2024-12-06 15:20:00"
+  },
+  {
+    sender: "training@newclient.com",
+    subject: "Training session request",
+    body: "Our team is new to your platform. Could we schedule a training session to help us get started and learn best practices?",
+    sent_date: "2024-12-06 16:40:00"
+  },
+  {
+    sender: "bug.report@testingteam.org",
+    subject: "Mobile app crash on iOS",
+    body: "The mobile app consistently crashes when uploading files larger than 10MB on iOS devices. This happens on iPhone 13 and newer models.",
+    sent_date: "2024-12-05 09:10:00"
+  }
+];
 
 export class SeedService {
   async seedFromCSV(): Promise<void> {
     try {
-      console.log("Starting data seeding from CSV...");
+      console.log("Starting data seeding...");
       
-      // Read and parse CSV file
-      const csvPath = join(process.cwd(), "attached_assets", "68b1acd44f393_Sample_Support_Emails_Dataset_1757005849228.csv");
-      const csvContent = readFileSync(csvPath, 'utf-8');
-      const lines = csvContent.trim().split('\n');
-      const headers = lines[0].split(',');
+      let allEmailData: any[] = [];
       
-      const emailData = [];
-      for (let i = 1; i < lines.length; i++) {
-        const line = lines[i];
-        if (!line) continue;
-        
-        // Parse CSV line (handling quoted content)
-        const values = this.parseCSVLine(line);
-        if (values.length >= 4) {
-          emailData.push({
-            sender: values[0],
-            subject: values[1],
-            body: values[2],
-            sent_date: values[3]
-          });
+      // Try to load from multiple CSV files
+      const csvFiles = [
+        join(process.cwd(), "sample_data", "customer_support_emails.csv"),
+        join(process.cwd(), "sample_data", "technical_support_emails.csv"),
+        join(process.cwd(), "attached_assets", "68b1acd44f393_Sample_Support_Emails_Dataset_1757005849228.csv"),
+        join(process.cwd(), "68b1acd44f393_Sample_Support_Emails_Dataset.csv")
+      ];
+      
+      let csvFilesLoaded = 0;
+      
+      for (const csvPath of csvFiles) {
+        if (existsSync(csvPath)) {
+          try {
+            console.log(`Loading CSV file: ${csvPath}`);
+            const csvContent = readFileSync(csvPath, 'utf-8');
+            const emailsFromFile = this.parseCSVContent(csvContent);
+            allEmailData = [...allEmailData, ...emailsFromFile];
+            csvFilesLoaded++;
+            console.log(`Loaded ${emailsFromFile.length} emails from ${csvPath}`);
+          } catch (error) {
+            console.warn(`Failed to load CSV file ${csvPath}:`, error);
+          }
         }
       }
       
-      console.log(`Processing ${emailData.length} sample emails...`);
+      // If no CSV files were loaded, use default sample data
+      if (csvFilesLoaded === 0) {
+        console.log("No CSV files found, using default sample data");
+        allEmailData = DEFAULT_SAMPLE_EMAILS;
+      }
+      
+      console.log(`Processing ${allEmailData.length} sample emails from ${csvFilesLoaded} CSV files...`);
       
       // Process each email with AI analysis
-      for (const email of emailData) {
+      let processedCount = 0;
+      let skippedCount = 0;
+      
+      for (const email of allEmailData) {
         // Check if email already exists (by sender + subject combination)
         const existingEmails = await storage.getEmails(1000);
         const exists = existingEmails.some(e => 
@@ -45,20 +110,48 @@ export class SeedService {
         
         if (exists) {
           console.log(`Skipping duplicate email: ${email.subject}`);
+          skippedCount++;
           continue;
         }
         
         await this.processEmailWithAI(email);
+        processedCount++;
       }
       
       // Update analytics
       await this.updateAnalytics();
       
-      console.log("CSV data seeding completed successfully!");
+      console.log(`Seeding completed! Processed: ${processedCount}, Skipped: ${skippedCount}`);
     } catch (error) {
-      console.error("Failed to seed data from CSV:", error);
+      console.error("Failed to seed data:", error);
       throw error;
     }
+  }
+  
+  private parseCSVContent(csvContent: string): any[] {
+    const lines = csvContent.trim().split('\n');
+    if (lines.length < 2) return [];
+    
+    const headers = lines[0].split(',');
+    const emailData = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line.trim()) continue;
+      
+      // Parse CSV line (handling quoted content)
+      const values = this.parseCSVLine(line);
+      if (values.length >= 4) {
+        emailData.push({
+          sender: values[0],
+          subject: values[1],
+          body: values[2],
+          sent_date: values[3]
+        });
+      }
+    }
+    
+    return emailData;
   }
   
   private parseCSVLine(line: string): string[] {

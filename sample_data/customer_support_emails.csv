@@ -1,0 +1,21 @@
+sender,subject,body,sent_date
+john.doe@techcorp.com,Password Reset Issue,"I've been trying to reset my password for the past hour, but I'm not receiving the email. Can you help me with this?",2024-12-06 09:15:00
+sarah.johnson@retailco.com,Billing Inquiry - Double Charge,"I was charged twice for my monthly subscription. Transaction IDs: TX123456 and TX123457. Please refund one of them.",2024-12-06 10:30:00
+mike.smith@startup.io,Feature Request - API Documentation,"Could you provide more detailed API documentation? Specifically looking for webhooks and rate limiting information.",2024-12-06 11:45:00
+lisa.brown@agency.net,URGENT: System Outage,"Our entire team cannot access the platform. This is affecting our client deliverables. Need immediate assistance!",2024-12-06 13:20:00
+david.wilson@consultant.com,Data Export Question,"How can I export all my data from your platform? I need it in CSV format for analysis purposes.",2024-12-06 14:10:00
+emma.davis@nonprofit.org,Student Discount Application,"I'm a student and would like to apply for your educational discount. I have my student ID ready for verification.",2024-12-06 15:25:00
+alex.garcia@freelance.com,Integration Help - Slack,"I'm having trouble setting up the Slack integration. The webhook URL doesn't seem to work correctly.",2024-12-06 16:40:00
+jennifer.lee@marketing.co,Account Upgrade Question,"What are the differences between Pro and Enterprise plans? I need more storage and team members.",2024-12-06 17:55:00
+robert.taylor@finance.org,Security Concern - Suspicious Activity,"I noticed some unusual login attempts on my account. Can you check the security logs?",2024-12-05 08:30:00
+maria.rodriguez@ecommerce.com,Mobile App Bug Report,"The mobile app crashes when I try to upload images larger than 5MB. This happens on both iOS and Android.",2024-12-05 09:45:00
+kevin.anderson@consulting.biz,Training Session Request,"Can you schedule a training session for my team? We're new to the platform and need onboarding help.",2024-12-05 11:20:00
+ashley.white@creative.studio,File Sync Issue,"My files aren't syncing properly between devices. Some changes from yesterday are missing.",2024-12-05 13:15:00
+jason.miller@tech.solutions,API Rate Limit Exceeded,"We're consistently hitting the API rate limits. Can you increase our quota or suggest optimization strategies?",2024-12-05 14:30:00
+stephanie.clark@media.company,Video Upload Problems,"Large video files (>100MB) fail to upload. The progress bar gets stuck at 50% every time.",2024-12-05 16:10:00
+brian.harris@logistics.pro,Reporting Feature Enhancement,"The current reports are helpful, but we need custom date ranges and additional metrics for our analysis.",2024-12-05 17:45:00
+nicole.lewis@healthcare.org,GDPR Compliance Question,"We need to ensure your platform meets GDPR requirements. Can you provide compliance documentation?",2024-12-04 10:20:00
+christopher.walker@retail.chain,Bulk User Import,"Is there a way to import 500+ users from our existing system? Manual entry would take weeks.",2024-12-04 11:35:00
+amanda.hall@education.gov,Accessibility Features,"Does your platform support screen readers and other accessibility tools? We need to comply with ADA requirements.",2024-12-04 13:50:00
+daniel.young@insurance.firm,Data Backup and Recovery,"What's your data backup policy? We need to ensure our information is protected and recoverable.",2024-12-04 15:25:00
+michelle.king@consulting.group,Custom Branding Options,"Can we customize the platform with our company branding? Logo, colors, and custom domain?",2024-12-04 16:40:00
