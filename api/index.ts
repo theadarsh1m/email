@@ -192,16 +192,52 @@ async function handleProcessUrgent(req: VercelRequest, res: VercelResponse) {
 
 async function handleSeed(req: VercelRequest, res: VercelResponse) {
   try {
-    console.log("Starting CSV data seeding...");
+    console.log("🌱 Starting CSV data seeding...");
+    console.log("Environment check:", {
+      NODE_ENV: process.env.NODE_ENV,
+      DATABASE_URL: process.env.DATABASE_URL ? "✅ Present" : "❌ Missing",
+      GOOGLE_GEMINI_API_KEY: process.env.GOOGLE_GEMINI_API_KEY ? "✅ Present" : "❌ Missing"
+    });
+    
+    // Check database connection first
+    try {
+      const emails = await storage.getEmails(1);
+      console.log("✅ Database connection successful");
+    } catch (dbError) {
+      console.error("❌ Database connection failed:", dbError);
+      return res.status(500).json({ 
+        error: "Database connection failed", 
+        details: dbError instanceof Error ? dbError.message : String(dbError)
+      });
+    }
+    
     await seedService.seedFromCSV();
-    await emailService.updateDailyAnalytics();
+    
+    // Only update analytics if seeding succeeded
+    try {
+      await emailService.updateDailyAnalytics();
+    } catch (analyticsError) {
+      console.warn("⚠️ Analytics update failed, but seeding succeeded:", analyticsError);
+    }
+    
     res.json({ 
       success: true, 
-      message: "Sample email data loaded and processed with AI analysis" 
+      message: "✅ Sample email data loaded and processed with AI analysis" 
     });
   } catch (error) {
-    console.error("Seed operation failed:", error);
-    res.status(500).json({ error: "Failed to seed database with sample data" });
+    console.error("❌ Seed operation failed:", error);
+    
+    // Provide more detailed error information
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    console.error("Error details:", { message: errorMessage, stack: errorStack });
+    
+    res.status(500).json({ 
+      error: "Failed to seed database with sample data",
+      details: errorMessage,
+      timestamp: new Date().toISOString()
+    });
   }
 }
 

@@ -1,7 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 
 // Using Gemini 2.5 Flash as the primary model for analysis tasks
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const genai = new GoogleGenAI({ 
+  apiKey: process.env.GOOGLE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "" 
+});
 
 export interface SentimentAnalysis {
   sentiment: "positive" | "negative" | "neutral";

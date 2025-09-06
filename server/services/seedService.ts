@@ -60,20 +60,29 @@ export class SeedService {
   async seedFromCSV(): Promise<void> {
     try {
       console.log("Starting data seeding...");
+      console.log("Current working directory:", process.cwd());
+      console.log("Environment:", process.env.NODE_ENV || 'development');
       
       let allEmailData: any[] = [];
       
-      // Try to load from multiple CSV files
+      // Try to load from multiple CSV files with different potential paths
       const csvFiles = [
         join(process.cwd(), "sample_data", "customer_support_emails.csv"),
         join(process.cwd(), "sample_data", "technical_support_emails.csv"),
         join(process.cwd(), "attached_assets", "68b1acd44f393_Sample_Support_Emails_Dataset_1757005849228.csv"),
-        join(process.cwd(), "68b1acd44f393_Sample_Support_Emails_Dataset.csv")
+        join(process.cwd(), "68b1acd44f393_Sample_Support_Emails_Dataset.csv"),
+        // Try relative paths for Vercel
+        join(__dirname, "..", "..", "sample_data", "customer_support_emails.csv"),
+        join(__dirname, "..", "..", "sample_data", "technical_support_emails.csv"),
+        // Try from project root
+        "./sample_data/customer_support_emails.csv",
+        "./sample_data/technical_support_emails.csv"
       ];
       
       let csvFilesLoaded = 0;
       
       for (const csvPath of csvFiles) {
+        console.log(`Checking path: ${csvPath}`);
         if (existsSync(csvPath)) {
           try {
             console.log(`Loading CSV file: ${csvPath}`);
@@ -81,16 +90,18 @@ export class SeedService {
             const emailsFromFile = this.parseCSVContent(csvContent);
             allEmailData = [...allEmailData, ...emailsFromFile];
             csvFilesLoaded++;
-            console.log(`Loaded ${emailsFromFile.length} emails from ${csvPath}`);
+            console.log(`✅ Loaded ${emailsFromFile.length} emails from ${csvPath}`);
           } catch (error) {
-            console.warn(`Failed to load CSV file ${csvPath}:`, error);
+            console.warn(`❌ Failed to load CSV file ${csvPath}:`, error);
           }
+        } else {
+          console.log(`❌ File not found: ${csvPath}`);
         }
       }
       
       // If no CSV files were loaded, use default sample data
       if (csvFilesLoaded === 0) {
-        console.log("No CSV files found, using default sample data");
+        console.log("⚠️ No CSV files found, using default sample data");
         allEmailData = DEFAULT_SAMPLE_EMAILS;
       }
       
