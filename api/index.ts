@@ -195,6 +195,7 @@ async function handleSeed(req: VercelRequest, res: VercelResponse) {
     console.log("🌱 Starting CSV data seeding...");
     console.log("Environment check:", {
       NODE_ENV: process.env.NODE_ENV,
+      VERCEL: process.env.VERCEL,
       DATABASE_URL: process.env.DATABASE_URL ? "✅ Present" : "❌ Missing",
       GOOGLE_GEMINI_API_KEY: process.env.GOOGLE_GEMINI_API_KEY ? "✅ Present" : "❌ Missing"
     });
@@ -211,7 +212,35 @@ async function handleSeed(req: VercelRequest, res: VercelResponse) {
       });
     }
     
-    await seedService.seedFromCSV();
+    // Get seeding mode from query parameter
+    const seedingMode = req.query.mode as string || 'full';
+    let seedingResult;
+    
+    try {
+      if (seedingMode === 'simple') {
+        console.log("🔄 Using simple seeding mode (no AI analysis)");
+        await seedService.seedSimple();
+        seedingResult = "Simple seeding completed - emails added without AI analysis";
+      } else {
+        console.log("🤖 Using full seeding mode (with AI analysis)");
+        await seedService.seedFromCSV();
+        seedingResult = "Full seeding completed - emails processed with AI analysis";
+      }
+    } catch (seedError) {
+      console.error("🔥 Full seeding failed, trying simple fallback:", seedError);
+      
+      if (seedingMode !== 'simple') {
+        try {
+          console.log("🔄 Falling back to simple seeding...");
+          await seedService.seedSimple();
+          seedingResult = "Fallback simple seeding completed - AI analysis failed but basic data loaded";
+        } catch (fallbackError) {
+          throw new Error(`Both seeding methods failed. Full: ${seedError.message}, Simple: ${fallbackError.message}`);
+        }
+      } else {
+        throw seedError;
+      }
+    }
     
     // Only update analytics if seeding succeeded
     try {
@@ -222,7 +251,9 @@ async function handleSeed(req: VercelRequest, res: VercelResponse) {
     
     res.json({ 
       success: true, 
-      message: "✅ Sample email data loaded and processed with AI analysis" 
+      message: `✅ ${seedingResult}`,
+      mode: seedingMode,
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error("❌ Seed operation failed:", error);
@@ -236,6 +267,7 @@ async function handleSeed(req: VercelRequest, res: VercelResponse) {
     res.status(500).json({ 
       error: "Failed to seed database with sample data",
       details: errorMessage,
+      suggestion: "Try using simple mode: /api/seed?mode=simple",
       timestamp: new Date().toISOString()
     });
   }

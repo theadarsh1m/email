@@ -4,137 +4,274 @@ import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 import type { InsertEmail } from "@shared/schema";
 
-// Default sample data if CSV files are not available
+// Comprehensive sample data embedded for Vercel deployment
 const DEFAULT_SAMPLE_EMAILS = [
+  // Customer Support Emails
   {
-    sender: "urgent.user@company.com",
-    subject: "CRITICAL: Production system down",
-    body: "Our main production system is completely down. All users are affected and we're losing revenue. This needs immediate attention!",
-    sent_date: "2024-12-06 09:00:00"
+    sender: "john.doe@techcorp.com",
+    subject: "Password Reset Issue",
+    body: "I've been trying to reset my password for the past hour, but I'm not receiving the email. Can you help me with this?",
+    sent_date: "2024-12-06 09:15:00"
   },
   {
-    sender: "billing@customer.org",
-    subject: "Billing inquiry - overcharge",
-    body: "I was charged $299 instead of $99 for my monthly subscription. Please review my account and issue a refund for the difference.",
-    sent_date: "2024-12-06 10:15:00"
+    sender: "sarah.johnson@retailco.com",
+    subject: "Billing Inquiry - Double Charge",
+    body: "I was charged twice for my monthly subscription. Transaction IDs: TX123456 and TX123457. Please refund one of them.",
+    sent_date: "2024-12-06 10:30:00"
   },
   {
-    sender: "support@helpdesk.com",
-    subject: "Password reset not working",
-    body: "I've tried resetting my password multiple times but I'm not receiving the reset email. Can you help me regain access to my account?",
-    sent_date: "2024-12-06 11:30:00"
+    sender: "mike.smith@startup.io",
+    subject: "Feature Request - API Documentation",
+    body: "Could you provide more detailed API documentation? Specifically looking for webhooks and rate limiting information.",
+    sent_date: "2024-12-06 11:45:00"
   },
   {
-    sender: "integration@techfirm.io",
-    subject: "API documentation request",
-    body: "We're planning to integrate with your API but need more detailed documentation on rate limits and webhook configurations.",
-    sent_date: "2024-12-06 12:45:00"
+    sender: "lisa.brown@agency.net",
+    subject: "URGENT: System Outage",
+    body: "Our entire team cannot access the platform. This is affecting our client deliverables. Need immediate assistance!",
+    sent_date: "2024-12-06 13:20:00"
   },
   {
-    sender: "feedback@startup.co",
-    subject: "Feature request - bulk export",
-    body: "It would be great if you could add a bulk export feature. We need to export all our data for compliance reporting.",
-    sent_date: "2024-12-06 14:00:00"
+    sender: "david.wilson@consultant.com",
+    subject: "Data Export Question",
+    body: "How can I export all my data from your platform? I need it in CSV format for analysis purposes.",
+    sent_date: "2024-12-06 14:10:00"
   },
   {
-    sender: "security@enterprise.net",
-    subject: "Security audit questions",
-    body: "We're conducting a security audit and need information about your data encryption, access controls, and compliance certifications.",
-    sent_date: "2024-12-06 15:20:00"
+    sender: "emma.davis@nonprofit.org",
+    subject: "Student Discount Application",
+    body: "I'm a student and would like to apply for your educational discount. I have my student ID ready for verification.",
+    sent_date: "2024-12-06 15:25:00"
   },
   {
-    sender: "training@newclient.com",
-    subject: "Training session request",
-    body: "Our team is new to your platform. Could we schedule a training session to help us get started and learn best practices?",
+    sender: "alex.garcia@freelance.com",
+    subject: "Integration Help - Slack",
+    body: "I'm having trouble setting up the Slack integration. The webhook URL doesn't seem to work correctly.",
     sent_date: "2024-12-06 16:40:00"
   },
   {
-    sender: "bug.report@testingteam.org",
-    subject: "Mobile app crash on iOS",
-    body: "The mobile app consistently crashes when uploading files larger than 10MB on iOS devices. This happens on iPhone 13 and newer models.",
-    sent_date: "2024-12-05 09:10:00"
+    sender: "jennifer.lee@marketing.co",
+    subject: "Account Upgrade Question",
+    body: "What are the differences between Pro and Enterprise plans? I need more storage and team members.",
+    sent_date: "2024-12-06 17:55:00"
+  },
+  {
+    sender: "robert.taylor@finance.org",
+    subject: "Security Concern - Suspicious Activity",
+    body: "I noticed some unusual login attempts on my account. Can you check the security logs?",
+    sent_date: "2024-12-05 08:30:00"
+  },
+  {
+    sender: "maria.rodriguez@ecommerce.com",
+    subject: "Mobile App Bug Report",
+    body: "The mobile app crashes when I try to upload images larger than 5MB. This happens on both iOS and Android.",
+    sent_date: "2024-12-05 09:45:00"
+  },
+  
+  // Technical Support Emails
+  {
+    sender: "dev.team@startupx.com",
+    subject: "Critical Bug - Payment Processing",
+    body: "Our payment processing is failing for all credit card transactions. Error code: CC_GATEWAY_ERROR. This is blocking our revenue!",
+    sent_date: "2024-12-06 08:00:00"
+  },
+  {
+    sender: "qa.lead@softwaretech.io",
+    subject: "Performance Issue - Database Queries",
+    body: "The application response time has increased from 200ms to 3000ms since yesterday. Database queries seem to be the bottleneck.",
+    sent_date: "2024-12-06 09:30:00"
+  },
+  {
+    sender: "sysadmin@infrastructure.net",
+    subject: "Server Downtime Alert",
+    body: "Server cluster us-east-1 is experiencing intermittent downtime. Users in the Eastern US cannot access the service.",
+    sent_date: "2024-12-06 11:15:00"
+  },
+  {
+    sender: "security@fintech.company",
+    subject: "URGENT: Potential Security Breach",
+    body: "We detected unusual API calls from unknown IP addresses. Possible security breach. Need immediate investigation!",
+    sent_date: "2024-12-06 12:45:00"
+  },
+  {
+    sender: "devops@cloudservices.org",
+    subject: "SSL Certificate Expiry",
+    body: "SSL certificates for our production domains expire in 3 days. Need renewal process and deployment guidance.",
+    sent_date: "2024-12-06 14:20:00"
+  },
+  {
+    sender: "api.team@integration.hub",
+    subject: "Webhook Failures",
+    body: "Webhooks are failing with 500 errors since this morning. Our clients are not receiving real-time updates.",
+    sent_date: "2024-12-06 15:50:00"
+  },
+  {
+    sender: "mobile.dev@appstudio.com",
+    subject: "iOS App Store Rejection",
+    body: "App Store rejected our latest version citing privacy policy issues. Need guidance on compliance requirements.",
+    sent_date: "2024-12-06 17:10:00"
+  },
+  {
+    sender: "backend.engineer@microservices.co",
+    subject: "Memory Leak in Production",
+    body: "Production servers showing memory usage climbing to 90%+ and not releasing. Potential memory leak in the codebase.",
+    sent_date: "2024-12-05 10:30:00"
+  },
+  {
+    sender: "frontend.dev@webapp.solutions",
+    subject: "Cross-Browser Compatibility",
+    body: "Our application breaks on Safari and older versions of Firefox. CSS grid layouts not rendering correctly.",
+    sent_date: "2024-12-05 12:00:00"
+  },
+  {
+    sender: "data.analyst@analytics.firm",
+    subject: "Database Migration Issues",
+    body: "Data migration from MySQL to PostgreSQL failed at 60%. Need rollback strategy and migration troubleshooting.",
+    sent_date: "2024-12-05 13:45:00"
   }
 ];
 
 export class SeedService {
+  // Simple seeding without AI analysis for emergency fallback
+  async seedSimple(): Promise<void> {
+    try {
+      console.log("🌱 Starting simple data seeding (no AI analysis)...");
+      
+      const existingEmails = await storage.getEmails(50);
+      console.log(`📋 Found ${existingEmails.length} existing emails`);
+      
+      let processedCount = 0;
+      
+      for (const emailData of DEFAULT_SAMPLE_EMAILS) {
+        // Check for duplicates
+        const exists = existingEmails.some(e => 
+          e.sender === emailData.sender && e.subject === emailData.subject
+        );
+        
+        if (exists) continue;
+        
+        // Create email with basic classification
+        const isUrgent = emailData.subject.toLowerCase().includes('urgent') || 
+                        emailData.subject.toLowerCase().includes('critical');
+        
+        const newEmail: InsertEmail = {
+          messageId: `simple-seed-${Date.now()}-${processedCount}`,
+          subject: emailData.subject,
+          sender: emailData.sender,
+          body: emailData.body,
+          receivedAt: new Date(emailData.sent_date),
+          sentiment: "neutral",
+          priority: isUrgent ? "urgent" : "normal",
+          extractedInfo: {},
+          tags: [],
+          isProcessed: false,
+          isResolved: false
+        };
+        
+        await storage.createEmail(newEmail);
+        processedCount++;
+      }
+      
+      console.log(`🎉 Simple seeding completed! Processed: ${processedCount} emails`);
+      
+    } catch (error) {
+      console.error("💥 Simple seeding failed:", error);
+      throw error;
+    }
+  }
+  
   async seedFromCSV(): Promise<void> {
     try {
-      console.log("Starting data seeding...");
-      console.log("Current working directory:", process.cwd());
-      console.log("Environment:", process.env.NODE_ENV || 'development');
+      console.log("🌱 Starting data seeding...");
+      console.log("📊 Environment:", process.env.NODE_ENV || 'development');
+      console.log("🏠 Current working directory:", process.cwd());
       
+      // In production/serverless, skip file system access and use embedded data
+      const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
       let allEmailData: any[] = [];
       
-      // Try to load from multiple CSV files with different potential paths
-      const csvFiles = [
-        join(process.cwd(), "sample_data", "customer_support_emails.csv"),
-        join(process.cwd(), "sample_data", "technical_support_emails.csv"),
-        join(process.cwd(), "attached_assets", "68b1acd44f393_Sample_Support_Emails_Dataset_1757005849228.csv"),
-        join(process.cwd(), "68b1acd44f393_Sample_Support_Emails_Dataset.csv"),
-        // Try relative paths for Vercel
-        join(__dirname, "..", "..", "sample_data", "customer_support_emails.csv"),
-        join(__dirname, "..", "..", "sample_data", "technical_support_emails.csv"),
-        // Try from project root
-        "./sample_data/customer_support_emails.csv",
-        "./sample_data/technical_support_emails.csv"
-      ];
-      
-      let csvFilesLoaded = 0;
-      
-      for (const csvPath of csvFiles) {
-        console.log(`Checking path: ${csvPath}`);
-        if (existsSync(csvPath)) {
-          try {
-            console.log(`Loading CSV file: ${csvPath}`);
-            const csvContent = readFileSync(csvPath, 'utf-8');
-            const emailsFromFile = this.parseCSVContent(csvContent);
-            allEmailData = [...allEmailData, ...emailsFromFile];
-            csvFilesLoaded++;
-            console.log(`✅ Loaded ${emailsFromFile.length} emails from ${csvPath}`);
-          } catch (error) {
-            console.warn(`❌ Failed to load CSV file ${csvPath}:`, error);
+      if (isProduction) {
+        console.log("🚀 Production environment detected - using embedded sample data");
+        allEmailData = DEFAULT_SAMPLE_EMAILS;
+      } else {
+        console.log("🔧 Development environment - attempting to load CSV files");
+        
+        // Try to load from CSV files in development only
+        const csvFiles = [
+          join(process.cwd(), "sample_data", "customer_support_emails.csv"),
+          join(process.cwd(), "sample_data", "technical_support_emails.csv")
+        ];
+        
+        let csvFilesLoaded = 0;
+        
+        for (const csvPath of csvFiles) {
+          if (existsSync(csvPath)) {
+            try {
+              console.log(`📁 Loading CSV file: ${csvPath}`);
+              const csvContent = readFileSync(csvPath, 'utf-8');
+              const emailsFromFile = this.parseCSVContent(csvContent);
+              allEmailData = [...allEmailData, ...emailsFromFile];
+              csvFilesLoaded++;
+              console.log(`✅ Loaded ${emailsFromFile.length} emails from ${csvPath}`);
+            } catch (error) {
+              console.warn(`❌ Failed to load CSV file ${csvPath}:`, error);
+            }
           }
-        } else {
-          console.log(`❌ File not found: ${csvPath}`);
+        }
+        
+        // Fallback to embedded data if no CSV files found
+        if (csvFilesLoaded === 0) {
+          console.log("⚠️ No CSV files found in development, using embedded sample data");
+          allEmailData = DEFAULT_SAMPLE_EMAILS;
         }
       }
       
-      // If no CSV files were loaded, use default sample data
-      if (csvFilesLoaded === 0) {
-        console.log("⚠️ No CSV files found, using default sample data");
-        allEmailData = DEFAULT_SAMPLE_EMAILS;
-      }
+      console.log(`📧 Processing ${allEmailData.length} sample emails...`);
       
-      console.log(`Processing ${allEmailData.length} sample emails from ${csvFilesLoaded} CSV files...`);
+      // Check if we already have data to avoid duplicates
+      const existingEmails = await storage.getEmails(100);
+      console.log(`📋 Found ${existingEmails.length} existing emails in database`);
       
-      // Process each email with AI analysis
       let processedCount = 0;
       let skippedCount = 0;
       
       for (const email of allEmailData) {
-        // Check if email already exists (by sender + subject combination)
-        const existingEmails = await storage.getEmails(1000);
+        // Check if email already exists
         const exists = existingEmails.some(e => 
-          e.sender === email.sender && e.subject === email.subject && 
-          e.body === email.body
+          e.sender === email.sender && e.subject === email.subject
         );
         
         if (exists) {
-          console.log(`Skipping duplicate email: ${email.subject}`);
+          console.log(`⏭️ Skipping duplicate: ${email.subject}`);
           skippedCount++;
           continue;
         }
         
-        await this.processEmailWithAI(email);
-        processedCount++;
+        try {
+          await this.processEmailWithAI(email);
+          processedCount++;
+          
+          // Add a small delay to prevent rate limiting
+          if (processedCount % 5 === 0) {
+            console.log(`💤 Processed ${processedCount}/${allEmailData.length} emails...`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        } catch (error) {
+          console.error(`❌ Failed to process email "${email.subject}":`, error);
+        }
       }
       
       // Update analytics
-      await this.updateAnalytics();
+      try {
+        await this.updateAnalytics();
+        console.log("📈 Analytics updated successfully");
+      } catch (analyticsError) {
+        console.warn("⚠️ Analytics update failed (non-critical):", analyticsError);
+      }
       
-      console.log(`Seeding completed! Processed: ${processedCount}, Skipped: ${skippedCount}`);
+      console.log(`🎉 Seeding completed! ✅ Processed: ${processedCount}, ⏭️ Skipped: ${skippedCount}`);
     } catch (error) {
-      console.error("Failed to seed data:", error);
+      console.error("💥 Seeding failed:", error);
       throw error;
     }
   }
@@ -189,15 +326,42 @@ export class SeedService {
   
   private async processEmailWithAI(emailData: any): Promise<void> {
     try {
-      console.log(`Processing: ${emailData.subject}`);
+      console.log(`🔄 Processing: ${emailData.subject}`);
       
       // Generate unique message ID
       const messageId = `seed-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
-      // AI Analysis
-      const sentimentAnalysis = await geminiService.analyzeSentiment(emailData.body);
-      const priorityAnalysis = await geminiService.analyzePriority(emailData.body, emailData.subject);
-      const extractedInfo = await geminiService.extractInformation(emailData.body);
+      // AI Analysis with fallbacks
+      let sentimentAnalysis, priorityAnalysis, extractedInfo;
+      
+      try {
+        sentimentAnalysis = await geminiService.analyzeSentiment(emailData.body);
+      } catch (error) {
+        console.warn(`⚠️ Sentiment analysis failed for "${emailData.subject}", using fallback`);
+        sentimentAnalysis = { sentiment: "neutral", confidence: 0, reasoning: "Analysis failed" };
+      }
+      
+      try {
+        priorityAnalysis = await geminiService.analyzePriority(emailData.body, emailData.subject);
+      } catch (error) {
+        console.warn(`⚠️ Priority analysis failed for "${emailData.subject}", using fallback`);
+        const isUrgent = emailData.subject.toLowerCase().includes('urgent') || 
+                        emailData.subject.toLowerCase().includes('critical') ||
+                        emailData.body.toLowerCase().includes('urgent');
+        priorityAnalysis = { 
+          priority: isUrgent ? "urgent" : "normal", 
+          confidence: 0.5, 
+          keywords: [], 
+          reasoning: "Analysis failed - using keyword detection" 
+        };
+      }
+      
+      try {
+        extractedInfo = await geminiService.extractInformation(emailData.body);
+      } catch (error) {
+        console.warn(`⚠️ Information extraction failed for "${emailData.subject}", using fallback`);
+        extractedInfo = { urgencyKeywords: [] };
+      }
       
       // Create email record
       const newEmail: InsertEmail = {
@@ -216,13 +380,24 @@ export class SeedService {
       
       const email = await storage.createEmail(newEmail);
       
-      // Generate AI response
-      const aiResponse = await geminiService.generateResponse(
-        emailData.body,
-        emailData.subject,
-        sentimentAnalysis.sentiment,
-        extractedInfo
-      );
+      // Generate AI response with fallback
+      let aiResponse;
+      try {
+        aiResponse = await geminiService.generateResponse(
+          emailData.body,
+          emailData.subject,
+          sentimentAnalysis.sentiment,
+          extractedInfo
+        );
+      } catch (error) {
+        console.warn(`⚠️ Response generation failed for "${emailData.subject}", using fallback`);
+        aiResponse = {
+          content: "Thank you for contacting us. We have received your message and will respond as soon as possible. Our team will review your inquiry and get back to you within 24 hours.",
+          tone: "professional",
+          confidence: 0.5,
+          reasoning: "Fallback response due to API error"
+        };
+      }
       
       // Save response
       await storage.createResponse({
@@ -236,7 +411,8 @@ export class SeedService {
       console.log(`✅ Processed: ${email.subject} (${email.priority}/${email.sentiment})`);
       
     } catch (error) {
-      console.error(`Failed to process email: ${emailData.subject}`, error);
+      console.error(`❌ Failed to process email: ${emailData.subject}`, error);
+      throw error; // Re-throw to be handled by calling function
     }
   }
   
